@@ -191,6 +191,32 @@
   .codex-card.open .codex-bio{display:block;}
   .vbtn{margin-top:7px;width:100%;padding:4px;font-size:10px;border:1px solid var(--green);background:none;color:var(--green);cursor:pointer;}
 
+  /* ===== 互动 & 助战 ===== */
+  .ia-head{display:flex;gap:14px;align-items:center;margin-bottom:12px;}
+  .ia-head img{width:72px;height:96px;object-fit:cover;border:1px solid var(--inksoft);}
+  .ia-head .nm{font-size:21px;}
+  .ia-head .mt,.ia-head .tier{font-family:"Noto Sans SC";font-size:11px;color:var(--green);margin-top:3px;}
+  .ia-head .tier{color:var(--red);}
+  .ia-line{font-size:13px;line-height:1.8;font-family:"Noto Sans SC";background:rgba(255,255,255,.5);border-left:3px solid var(--gold);padding:9px 12px;margin-bottom:12px;}
+  .qprog{font-family:"Noto Sans SC";font-size:11px;color:var(--inksoft);margin-bottom:8px;}
+  .qtime{height:6px;background:rgba(60,50,40,.15);margin:10px 0;overflow:hidden;}
+  .qtime i{display:block;height:100%;width:100%;background:linear-gradient(90deg,var(--gold),var(--red));}
+  .qresult{text-align:center;padding:8px;}
+  .qresult .big{font-size:30px;color:var(--red);}
+  .ptrack{position:relative;height:46px;background:rgba(60,50,40,.1);border:1px solid var(--inksoft);margin:14px 0;}
+  .pzone{position:absolute;top:0;bottom:0;left:42%;width:16%;background:rgba(77,122,78,.3);border-left:2px dashed var(--green);border-right:2px dashed var(--green);}
+  .pmarker{position:absolute;top:-4px;width:6px;height:54px;background:var(--red);}
+  .pinfo{font-family:"Noto Sans SC";font-size:12px;text-align:center;margin-bottom:6px;}
+  .skill-tray{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin:8px 0 12px;}
+  .skill{border:1px solid var(--inksoft);padding:9px;background:rgba(255,255,255,.4);}
+  .skill.locked{opacity:.55;}
+  .skill .sn{font-size:13px;font-weight:700;color:var(--red);}
+  .skill .sd{font-family:"Noto Sans SC";font-size:10px;color:var(--inksoft);margin-top:3px;line-height:1.5;}
+  .skill button{margin-top:6px;width:100%;}
+  .token-tray{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;}
+  .token{border:1px solid var(--gold);padding:6px 10px;font-family:"Noto Sans SC";font-size:11px;background:rgba(201,160,80,.1);line-height:1.5;}
+  .token small{color:var(--inksoft);}
+
   #toast{position:fixed;bottom:32px;left:50%;transform:translateX(-50%) translateY(20px);z-index:50;background:#2e2820;border:1px solid #e8c66a;color:#f0e6cf;padding:10px 22px;font-family:"Noto Sans SC";font-size:13px;opacity:0;transition:.3s;pointer-events:none;}
   #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
@@ -300,7 +326,17 @@
 <!-- 羁绊 -->
 <div class="modal" id="bondModal"><div class="modal-box">
   <div class="modal-head"><h2 class="brush">羁 绊 名 录</h2><button class="ghost-btn" onclick="closeModal('bondModal')">✕</button></div>
+  <h3 class="brush" style="font-size:19px">助 战 羁 绊 技</h3>
+  <div class="skill-tray" id="skillTray"></div>
+  <div class="token-tray" id="tokenTray"></div>
+  <h3 class="brush" style="font-size:19px;margin-top:6px">同 门 名 录 · 点 互 动</h3>
   <div id="bondList"></div>
+</div></div>
+
+<!-- 角色专属互动 -->
+<div class="modal" id="interactModal"><div class="modal-box">
+  <div class="modal-head"><h2 class="brush" id="iaTitle">同 门 相 会</h2><button class="ghost-btn" onclick="closeInteract()">✕</button></div>
+  <div id="iaBody"></div>
 </div></div>
 
 <!-- 炼丹 -->
@@ -336,13 +372,13 @@ const FORMS=[
  {realm:'元婴·化神',tag:'九 尾 仙 后',img:'assets/hero-form3.jpg'}];
 const CHARS=[
  {n:'灵小九',img:'assets/hero-form1.jpg',meta:'炼气期 · 木火灵根',voice:'assets/voice-hero.wav',bio:'保研入悬空书院的小狐妖，天真却有股不服输的韧劲，立志成为最厉害的红线仙。'},
- {n:'霍燃',img:'assets/npc-brother.jpg',meta:'筑基后期 · 火灵根',bio:'热情似火的师兄，最爱拉人一起刷代码打怪，师门气氛担当。'},
- {n:'沈澜',img:'assets/npc-sister.jpg',meta:'金丹初期 · 水灵根',bio:'清冷知性的师姐，文献功底深厚，总在你焦虑时递来一杯热茶。'},
- {n:'裴霜',img:'assets/char-peishuang.jpg',meta:'金丹中期 · 金灵根',bio:'剑心通明的孤高女剑修，外冷内热，认定一人便生死相随。'},
- {n:'陆昭',img:'assets/char-luzhao.jpg',meta:'金丹后期 · 火木灵根',bio:'玩世不恭的前朝遗脉，医术通神却自嘲江湖郎中，把宿命藏进笑里。'},
+ {n:'霍燃',img:'assets/npc-brother.jpg',meta:'筑基后期 · 火灵根',voice:'assets/voice-huoran.wav',bio:'热情似火的师兄，最爱拉人一起刷代码打怪，师门气氛担当。'},
+ {n:'沈澜',img:'assets/npc-sister.jpg',meta:'金丹初期 · 水灵根',voice:'assets/voice-shenlan.wav',bio:'清冷知性的师姐，文献功底深厚，总在你焦虑时递来一杯热茶。'},
+ {n:'裴霜',img:'assets/char-peishuang.jpg',meta:'金丹中期 · 金灵根',voice:'assets/voice-peishuang.wav',bio:'剑心通明的孤高女剑修，外冷内热，认定一人便生死相随。'},
+ {n:'陆昭',img:'assets/char-luzhao.jpg',meta:'金丹后期 · 火木灵根',voice:'assets/voice-luzhao.wav',bio:'玩世不恭的前朝遗脉，医术通神却自嘲江湖郎中，把宿命藏进笑里。'},
  {n:'萧玄姬',img:'assets/char-xuanji.jpg',meta:'元婴初期 · 雷灵根',voice:'assets/voice-xuanji.wav',bio:'权倾一方的女帝，以女子之身行帝王事，霸气护短。'},
- {n:'苗阿箩',img:'assets/char-aluo.jpg',meta:'筑基后期 · 木灵根',bio:'苗疆蛊女，天真烂漫，用毒救人只凭心意，痴情起来最勇敢。'},
- {n:'乌川',img:'assets/char-wuchuan.jpg',meta:'金丹初期 · 水土灵根',bio:'苗疆少主，温润隐忍，在族群与挚爱间两难，默默背负一切。'},
+ {n:'苗阿箩',img:'assets/char-aluo.jpg',meta:'筑基后期 · 木灵根',voice:'assets/voice-aluo.wav',bio:'苗疆蛊女，天真烂漫，用毒救人只凭心意，痴情起来最勇敢。'},
+ {n:'乌川',img:'assets/char-wuchuan.jpg',meta:'金丹初期 · 水土灵根',voice:'assets/voice-wuchuan.wav',bio:'苗疆少主，温润隐忍，在族群与挚爱间两难，默默背负一切。'},
  {n:'卢也',img:'assets/char-luye.jpg',meta:'金丹中期 · 土风灵根',voice:'assets/voice-luye.wav',bio:'慵懒道士，算尽天机仍愿为苍生入世，大智若愚。'},
  {n:'阿杳',img:'assets/char-ayao.jpg',meta:'深不可测 · 先天道体',voice:'assets/voice-ayao.wav',bio:'身世成谜的白发少女，不通世故却战力爆表，执着追问"我是谁"。'}];
 const TASKS=[
@@ -386,8 +422,9 @@ const HERBS=[{name:'聚气草',mat:'聚气草',stage:0,color:'#7aa86a'},{name:'�
 let state={form:0,exp:0,expMax:100,stress:30,
  attrs:{神识:10,身法:12,气血:14,灵力:12,悟性:18,气运:8},
  weapon:{n:'姻缘铃·红绳',lv:1,atk:5},
- pills:{聚气丹:0,静心丹:0},mats:{聚气草:0,凝神花:0,赤灵芝:0,凝露草:0},
- bond:{},knowDone:new Set(),wateredDate:''};
+ pills:{聚气丹:0,静心丹:0,回春丹:0},mats:{聚气草:0,凝神花:0,赤灵芝:0,凝露草:0},
+ bond:{},knowDone:new Set(),wateredDate:'',
+ tokens:{剑气:0,雷令:0,守护:0},doubleNext:false,skillDate:{},actDate:{},luzhaoAsk:null};
 CHARS.forEach(c=>state.bond[c.n]=c.n==='灵小九'?100:8);
 
 /* ===== 开场 → 视频 → 菜单 ===== */
@@ -421,8 +458,11 @@ function renderForm(){const f=FORMS[state.form];document.getElementById('heroDyn
 /* 修行任务 */
 (function(){document.getElementById('taskList').innerHTML=TASKS.map((t,i)=>
  '<div class="task" onclick="doTask('+i+')"><div class="t">'+t.t+'</div><div class="d">'+t.d+'</div></div>').join('');})();
-function doTask(i){const t=TASKS[i];state.exp+=t.gain;state.stress=Math.max(0,Math.min(100,state.stress+t.ds));
- renderExp();renderAttrs();toast(t.t+' 完成 · 修为+'+t.gain+(t.ds<0?' · 心魔'+t.ds:''));}
+function doTask(i){const t=TASKS[i];let gain=t.gain,dbl='';
+ if(state.doubleNext){gain*=2;state.doubleNext=false;dbl=' · 机缘触发，修为翻倍！';}
+ state.exp+=gain;state.stress=Math.max(0,Math.min(100,state.stress+t.ds));
+ renderExp();renderAttrs();renderBondTray&&renderBondTray();
+ toast(t.t+' 完成 · 修为+'+gain+(t.ds<0?' · 心魔'+t.ds:'')+dbl);}
 
 /* 武器 */
 function renderWeapon(){const w=state.weapon;document.getElementById('weaponBox').innerHTML=
@@ -451,18 +491,21 @@ function doBreakthrough(){if(state.exp<state.expMax)return;const last=state.form
 
 /* 弹窗 */
 function openModal(id){document.getElementById(id).classList.add('show');
- if(id==='worldModal')renderLore();if(id==='bondModal')renderBond();}
+ if(id==='worldModal')renderLore();
+ if(id==='bondModal'){renderBondTray();renderBond();}}
 function closeModal(id){document.getElementById(id).classList.remove('show');}
 function renderLore(){document.getElementById('loreBox').innerHTML=LORE.map(l=>'<h4 class="brush">'+l.t+'</h4><p>'+l.p+'</p>').join('');}
 
 /* 羁绊 */
+function bondTier(b){return b>=90?'生死知交':b>=60?'知己':b>=30?'熟识':'点头之交';}
 function renderBond(){document.getElementById('bondList').innerHTML=CHARS.filter(c=>c.n!=='灵小九').map(c=>{
  const b=state.bond[c.n];return '<div class="bond-row"><img src="'+c.img+'"><div class="bond-info"><div class="bn">'+c.n+
-  '</div><div class="bl">'+c.meta+'</div><div class="bond-meter"><i style="width:'+b+'%"></i></div></div>'+
+  ' <span style="font-family:\'Noto Sans SC\';font-size:10px;color:var(--red)">'+bondTier(b)+'</span></div><div class="bl">'+c.meta+'</div><div class="bond-meter"><i style="width:'+b+'%"></i></div></div>'+
   '<div class="bond-actions">'+(c.voice?'<button class="mini-btn" onclick="speak(\''+c.voice+'\')">语音</button>':'')+
+  '<button class="mini-btn" style="border-color:var(--red);color:var(--red)" onclick="openInteract(\''+c.n+'\')">互动</button>'+
   '<button class="mini-btn" onclick="visit(\''+c.n+'\')">拜访</button></div></div>';}).join('');}
 function visit(n){state.bond[n]=Math.min(100,state.bond[n]+9);state.stress=Math.max(0,state.stress-4);
- renderBond();renderAttrs();toast(LINES[n]||(n+' 好感 +9'));}
+ renderBond();renderAttrs();renderBondTray();toast(LINES[n]||(n+' 好感 +9'));}
 function bondAction(n){visit(n);}
 
 /* 炼丹（需材料） */
@@ -517,6 +560,204 @@ function answerKnow(i){const k=KNOW[knowCur];document.querySelectorAll('#knowOpt
   document.getElementById('knowFoot').innerHTML='<button class="big-btn ghost" onclick="renderKnow(\'q\')">再试一次</button>';}}
 function claimKnow(){const k=KNOW[knowCur];state.knowDone.add(knowCur);state.exp+=k.reward.exp;state.attrs[k.reward.attr]+=k.reward.val;
  renderExp();renderAttrs();closeKnow();toast('修行有成：修为+'+k.reward.exp+'，'+k.reward.attr+'+'+k.reward.val);}
+
+/* ===== 角色专属互动：台词、羁绊技、玩法 ===== */
+const INTERLINE={
+ '霍燃':'霍燃：来场刷题对决！限时抢答，赢了我请奶茶，输了嘛——再练！',
+ '沈澜':'沈澜：陪我共读一篇文献吧，慢慢读，不急，读完心就静了。',
+ '裴霜':'裴霜：出剑。标记滑过中央时格挡，练你的身法与定力。',
+ '陆昭':'陆昭：我这有个方子缺味药，你若种了便匀我些，丹成分你一枚。',
+ '萧玄姬':'萧玄姬：答我三道题，过了，赐你一道雷令。',
+ '苗阿箩':'苗阿箩：喂我的小蛊一株灵草，它就送你一个惊喜，嘻嘻！',
+ '乌川':'乌川：今夜……陪你坐一会儿，什么都不用说。',
+ '卢也':'卢也：来，贫道给你卜一卦，看看今日机缘。',
+ '阿杳':'阿杳：五招之内接住我的题就算你赢，我……想看看你有多强。'};
+const SKILL={
+ '霍燃':{need:30,label:'烈焰刷题',desc:'下次修行任务修为翻倍',fx:()=>{state.doubleNext=true;}},
+ '沈澜':{need:30,label:'茶席静心',desc:'心魔-30，悟性+2',fx:()=>{state.stress=Math.max(0,state.stress-30);state.attrs.悟性+=2;}},
+ '裴霜':{need:40,label:'护道剑气',desc:'得一道剑气（修为+25、心魔-10）',fx:()=>{state.tokens.剑气++;}},
+ '陆昭':{need:30,label:'回春妙手',desc:'得一枚回春丹（修为+40、心魔-20）',fx:()=>{state.pills.回春丹++;}},
+ '萧玄姬':{need:40,label:'女帝雷令',desc:'得一枚雷令（下次任务翻倍）',fx:()=>{state.tokens.雷令++;}},
+ '苗阿箩':{need:30,label:'开心蛊',desc:'随机获得一种增益蛊',fx:()=>{guEffect(true);}},
+ '乌川':{need:40,label:'雨夜守护',desc:'心魔-20，得一道守护',fx:()=>{state.stress=Math.max(0,state.stress-20);state.tokens.守护++;}},
+ '卢也':{need:20,label:'天机卜卦',desc:'卜算今日机缘',fx:()=>{fortuneEffect();}},
+ '阿杳':{need:50,label:'埋人式切磋',desc:'立即修为+25',fx:()=>{state.exp+=25;}}};
+function useSkill(n){const s=SKILL[n],b=state.bond[n],today=new Date().toDateString();
+ if(b<s.need){toast('好感不足，需达到'+s.need);return;}
+ if(state.skillDate[n]===today){toast('今日已请'+n+'相助');return;}
+ state.skillDate[n]=today;s.fx();renderExp();renderAttrs();renderBondTray();
+ toast(n+' 施展「'+s.label+'」');}
+
+/* 托盘：技能 + 护身法器 */
+function renderBondTray(){const today=new Date().toDateString();
+ document.getElementById('skillTray').innerHTML=Object.keys(SKILL).map(n=>{
+  const s=SKILL[n],b=state.bond[n],locked=b<s.need,used=state.skillDate[n]===today;
+  return '<div class="skill'+(locked?' locked':'')+'"><div class="sn">'+s.label+' · '+n+'</div>'+
+   '<div class="sd">'+s.desc+'<br>需好感'+s.need+'（当前'+b+'）</div>'+
+   '<button class="mini-btn" '+(locked||used?'disabled':'')+' onclick="useSkill(\''+n+'\')">'+(locked?'未解锁':used?'今日已用':'施 展')+'</button></div>';}).join('');
+ const T=[['剑气','修为+25 心魔-10'],['雷令','下次任务修为翻倍'],['守护','心魔-25 气血+6']];let th='';
+ T.forEach(([t,d])=>{const c=state.tokens[t];th+='<div class="token">'+t+' ×'+c+'<br><small>'+d+'</small>'+(c>0?'<button class="mini-btn" onclick="useToken(\''+t+'\')">使用</button>':'')+'</div>';});
+ if(state.pills.回春丹>0)th+='<div class="token">回春丹 ×'+state.pills.回春丹+'<br><small>修为+40 心魔-20</small><button class="mini-btn" onclick="useToken(\'回春丹\')">使用</button></div>';
+ if(state.doubleNext)th+='<div class="token" style="border-color:var(--red)">机缘已备 · 下次任务翻倍</div>';
+ document.getElementById('tokenTray').innerHTML=th;}
+function useToken(t){
+ if(t==='剑气'){state.tokens.剑气--;state.exp+=25;state.stress=Math.max(0,state.stress-10);toast('剑气护体 · 修为+25 心魔-10');}
+ else if(t==='雷令'){state.tokens.雷令--;state.doubleNext=true;toast('雷令已备 · 下次任务修为翻倍');}
+ else if(t==='守护'){state.tokens.守护--;state.stress=Math.max(0,state.stress-25);state.attrs.气血+=6;toast('守护加身 · 心魔-25 气血+6');}
+ else if(t==='回春丹'){state.pills.回春丹--;state.exp+=40;state.stress=Math.max(0,state.stress-20);toast('回春丹 · 修为+40 心魔-20');}
+ renderExp();renderAttrs();renderBondTray();}
+
+/* 互动入口分发 */
+function charByName(n){return CHARS.find(c=>c.n===n);}
+function iaHeadHTML(c){const b=state.bond[c.n];
+ return '<div class="ia-head"><img src="'+c.img+'"><div><div class="nm brush">'+c.n+'</div>'+
+ '<div class="mt">'+c.meta+'</div><div class="tier">'+bondTier(b)+' · 好感 '+b+'</div></div></div>';}
+function openInteract(n){document.getElementById('iaTitle').textContent=n+' · 同 门 相 会';
+ const c=charByName(n),body=iaHeadHTML(c)+'<div class="ia-line">'+(INTERLINE[n]||'')+'</div>';
+ document.getElementById('iaBody').innerHTML=body;
+ if(['霍燃','沈澜','萧玄姬','阿杳'].includes(n)){document.getElementById('iaBody').insertAdjacentHTML('beforeend','<div id="quizHost"></div>');openQuiz(n);}
+ else if(n==='裴霜')openParry();else if(n==='陆昭')openRequest();
+ else if(n==='苗阿箩')openGu();else if(n==='乌川')openGuard();else if(n==='卢也')openFortune();
+ document.getElementById('interactModal').classList.add('show');}
+function closeInteract(){stopQuiz();stopParry();document.getElementById('interactModal').classList.remove('show');}
+
+/* ===== 答题型：霍燃PK / 沈澜共读 / 玄姬挑战 / 阿杳切磋 ===== */
+const QUIZ={
+ '霍燃':{time:12,win:2,qs:[
+  {q:'C++ 中要在“堆”上创建对象，用哪个关键字？',o:['new','malloc','create'],a:0},
+  {q:'哪条循环会恰好执行 10 次？',o:['for(int i=0;i<10;i++)','for(int i=1;i<10;i++)','while(i=10)'],a:0},
+  {q:'int* p 这个指针里存的是什么？',o:['变量的地址','变量的值','整数的副本'],a:0}],
+  winText:'你赢了！奶茶管够',loseText:'差一点，再来！',
+  winR:{exp:20,attr:'灵力',val:3,bond:10},loseR:{exp:6,bond:3}},
+ '沈澜':{time:0,cozy:true,qs:[
+  {q:'想最快知道一篇论文“做了什么、结论如何”，先看哪部分？',o:['摘要 Abstract','参考文献','致谢'],a:0},
+  {q:'“This method outperforms the baseline by 5%.” 最接近？',o:['该方法比基线好 5%','基线更好','只快了 5 秒'],a:0},
+  {q:'文献综述 Literature Review 的主要目的是？',o:['梳理已有研究、找到空白','列出读过的所有书','感谢前人'],a:0}],
+  winText:'共读圆满，心也静了',
+  winR:{exp:10,stress:-15,attr:'悟性',val:2,attr2:'神识',val2:1,bond:8}},
+ '萧玄姬':{time:15,win:2,qs:[
+  {q:'导师让你下周组会汇报进展，最稳妥的做法？',o:['提前整理“已做/在做/问题”并做几页幻灯','当天临场发挥','只讲困难'],a:0},
+  {q:'实验结果与预期完全相反，最不该做的是？',o:['篡改数据让它符合预期','检查代码与假设','复现并分析原因'],a:0},
+  {q:'想让代码别人看得懂、好维护，最重要的是？',o:['清晰命名加必要注释','越短越好','全写一行'],a:0}],
+  winText:'不错，赐你雷令',loseText:'尚可，回去再思',
+  winR:{exp:15,token:'雷令',bond:10},loseR:{exp:5,bond:3}},
+ '阿杳':{time:8,win:4,qs:[
+  {q:'二进制 1010 等于十进制几？',o:['10','8','12'],a:0},
+  {q:'数据量大时，O(n) 和 O(n²) 哪个更快？',o:['O(n)','O(n²)','一样'],a:0},
+  {q:'HTTP 状态码 404 表示？',o:['资源未找到','服务器错误','请求成功'],a:0},
+  {q:'栈 Stack 的存取特点是？',o:['后进先出 LIFO','先进先出 FIFO','随机存取'],a:0},
+  {q:'下列哪个是版本控制工具？',o:['Git','Chrome','Word'],a:0}],
+  winText:'你很强，我记住你了',loseText:'还不够，再来',
+  winR:{exp:35,attr:'气运',val:4,bond:12},loseR:{exp:8,bond:4}}};
+let QZ=null,qiv=null;
+function openQuiz(n){QZ={n,cfg:QUIZ[n],idx:0,correct:0};renderQ();}
+function stopQuiz(){if(qiv){clearInterval(qiv);qiv=null;}QZ=null;}
+function renderQ(){const host=document.getElementById('quizHost');if(!host||!QZ)return;
+ const cfg=QZ.cfg,q=cfg.qs[QZ.idx];let h='<div class="qprog">第 '+(QZ.idx+1)+' / '+cfg.qs.length+' 题 · 已答对 '+QZ.correct+'</div>';
+ h+='<div class="know-q">'+q.q+'</div>';
+ h+=q.o.map((o,i)=>'<button class="opt" id="qopt-'+i+'" onclick="pickQ('+i+')">'+String.fromCharCode(65+i)+'. '+o+'</button>').join('');
+ if(cfg.time)h+='<div class="qtime"><i id="qbar" style="width:100%"></i></div>';
+ host.innerHTML=h;
+ if(cfg.time){const t0=Date.now();if(qiv)clearInterval(qiv);
+  qiv=setInterval(()=>{const rem=Math.max(0,cfg.time-(Date.now()-t0)/1000),bar=document.getElementById('qbar');
+   if(bar)bar.style.width=(rem/cfg.time*100)+'%';if(rem<=0){clearInterval(qiv);qiv=null;qTimeout();}},100);}}
+function pickQ(i){if(!QZ)return;if(qiv){clearInterval(qiv);qiv=null;}
+ const q=QZ.cfg.qs[QZ.idx];document.querySelectorAll('#quizHost .opt').forEach(o=>o.disabled=true);
+ if(i===q.a){QZ.correct++;document.getElementById('qopt-'+i).classList.add('correct');}
+ else{document.getElementById('qopt-'+i).classList.add('wrong');document.getElementById('qopt-'+q.a).classList.add('correct');}
+ setTimeout(nextQ,650);}
+function qTimeout(){if(!QZ)return;const q=QZ.cfg.qs[QZ.idx];
+ document.querySelectorAll('#quizHost .opt').forEach(o=>o.disabled=true);
+ const el=document.getElementById('qopt-'+q.a);if(el)el.classList.add('correct');setTimeout(nextQ,500);}
+function nextQ(){if(!QZ)return;QZ.idx++;if(QZ.idx>=QZ.cfg.qs.length)finishQ();else renderQ();}
+function finishQ(){if(!QZ)return;const cfg=QZ.cfg,win=cfg.cozy||QZ.correct>=cfg.win,r=win?cfg.winR:cfg.loseR,g=[];
+ if(r){if(r.exp){state.exp+=r.exp;g.push('修为+'+r.exp);}if(r.stress){state.stress=Math.max(0,state.stress+r.stress);g.push('心魔'+r.stress);}
+  if(r.attr){state.attrs[r.attr]+=r.val;g.push(r.attr+'+'+r.val);}if(r.attr2){state.attrs[r.attr2]+=r.val2;g.push(r.attr2+'+'+r.val2);}
+  if(r.token){state.tokens[r.token]++;g.push(r.token+'+1');}if(r.bond){state.bond[QZ.n]=Math.min(100,state.bond[QZ.n]+r.bond);g.push('好感+'+r.bond);}}
+ document.getElementById('quizHost').innerHTML='<div class="qresult"><div class="big brush">'+(win?cfg.winText:cfg.loseText)+'</div>'+
+ '<div style="margin-top:6px;font-family:\'Noto Sans SC\';font-size:12px">答对 '+QZ.correct+' / '+cfg.qs.length+'</div>'+
+ '<div style="margin-top:8px;font-family:\'Noto Sans SC\';font-size:13px;color:var(--green)">'+g.join(' · ')+'</div>'+
+ '<div class="know-foot" style="margin-top:14px"><button class="big-btn ghost" onclick="closeInteract()">收 下</button></div></div>';
+ QZ=null;renderExp();renderAttrs();}
+
+/* ===== 裴霜：时机格挡 ===== */
+let PAR=null,praf=null;
+function openParry(){PAR={round:0,hit:0,total:3,pos:50,dir:1,locked:false};
+ document.getElementById('iaBody').insertAdjacentHTML('beforeend',
+  '<div id="parryHost"><div class="pinfo" id="pinfo">第 1 轮 · 命中 0</div>'+
+  '<div class="ptrack"><div class="pzone"></div><div class="pmarker" id="pmarker"></div></div>'+
+  '<div class="know-foot"><button class="big-btn" onclick="parryClick()">格 挡</button></div></div>');parryLoop();}
+function stopParry(){if(praf)cancelAnimationFrame(praf);praf=null;PAR=null;const h=document.getElementById('parryHost');if(h)h.remove();}
+function parryLoop(){if(!PAR)return;
+ if(!PAR.locked){PAR.pos+=PAR.dir*1.6;if(PAR.pos>=100){PAR.pos=100;PAR.dir=-1;}if(PAR.pos<=0){PAR.pos=0;PAR.dir=1;}}
+ const m=document.getElementById('pmarker');if(m)m.style.left='calc('+PAR.pos+'% - 3px)';praf=requestAnimationFrame(parryLoop);}
+function parryClick(){if(!PAR||PAR.locked)return;PAR.locked=true;
+ const good=PAR.pos>=42&&PAR.pos<=58;if(good)PAR.hit++;PAR.round++;
+ document.getElementById('pinfo').textContent=(good?'命中！':'落空……')+' 第 '+Math.min(PAR.round+1,PAR.total)+' 轮 · 命中 '+PAR.hit;
+ if(PAR.round>=PAR.total)setTimeout(finishParry,500);
+ else setTimeout(()=>{if(PAR){PAR.locked=false;document.getElementById('pinfo').textContent='第 '+(PAR.round+1)+' 轮 · 命中 '+PAR.hit;}},650);}
+function finishParry(){if(!PAR)return;const win=PAR.hit>=2,g=[];
+ if(win){state.attrs.身法+=4;state.attrs.气血+=3;state.tokens.剑气++;state.bond.裴霜=Math.min(100,state.bond.裴霜+10);
+  g=['身法+4','气血+3','剑气+1','好感+10'];}
+ else{state.attrs.气血+=2;state.bond.裴霜=Math.min(100,state.bond.裴霜+4);g=['气血+2','好感+4'];}
+ document.getElementById('parryHost').innerHTML='<div class="qresult"><div class="big brush">'+(win?'剑 意 相 承':'再 练 几 日')+'</div>'+
+ '<div style="margin-top:8px;font-family:\'Noto Sans SC\';font-size:13px;color:var(--green)">'+g.join(' · ')+'</div>'+
+ '<div class="know-foot" style="margin-top:14px"><button class="big-btn ghost" onclick="closeInteract()">收 下</button></div></div>';
+ PAR=null;renderAttrs();}
+
+/* ===== 陆昭：灵草委托 ===== */
+function rollRequest(){const m=['聚气草','凝神花','赤灵芝','凝露草'][Math.floor(Math.random()*4)];
+ state.luzhaoAsk={m,n:Math.random()<.3?2:1};}
+function openRequest(){if(!state.luzhaoAsk)rollRequest();renderRequest();}
+function renderRequest(){const old=document.getElementById('reqHost');if(old)old.remove();
+ const a=state.luzhaoAsk,have=state.mats[a.m]>=a.n;
+ document.getElementById('iaBody').insertAdjacentHTML('beforeend','<div id="reqHost"><div style="font-family:\'Noto Sans SC\';font-size:13px;line-height:1.8">陆昭想要 <b style="color:var(--red)">'+a.m+' ×'+a.n+'</b>（你有 '+(state.mats[a.m]||0)+'），炼成回春丹分你一枚。</div>'+
+ '<div class="know-foot" style="margin-top:14px"><button class="big-btn" '+(have?'':'disabled')+' onclick="deliverRequest()">交 付 药 材</button> <button class="big-btn ghost" onclick="rollRequest();renderRequest()">换 个 委 托</button></div></div>');}
+function deliverRequest(){const a=state.luzhaoAsk;state.mats[a.m]-=a.n;state.pills.回春丹++;state.bond.陆昭=Math.min(100,state.bond.陆昭+9);
+ document.getElementById('reqHost').innerHTML='<div class="qresult"><div class="big brush">丹 成 · 回 春 丹 +1</div>'+
+ '<div style="margin-top:8px;font-family:\'Noto Sans SC\';font-size:13px;color:var(--green)">好感+9 · 回春丹可在羁绊托盘使用</div>'+
+ '<div class="know-foot" style="margin-top:14px"><button class="big-btn ghost" onclick="closeInteract()">收 下</button></div></div>';
+ state.luzhaoAsk=null;renderGarden();}
+
+/* ===== 苗阿箩：下蛊 ===== */
+function openGu(){renderGu();}
+function renderGu(){const old=document.getElementById('guHost');if(old)old.remove();
+ document.getElementById('iaBody').insertAdjacentHTML('beforeend','<div id="guHost"><div style="font-family:\'Noto Sans SC\';font-size:13px;line-height:1.8">喂小蛊 <b style="color:var(--red)">1 株聚气草</b>（你有 '+(state.mats.聚气草||0)+'），随机得到一个效果。</div>'+
+ '<div class="know-foot" style="margin-top:14px"><button class="big-btn" '+(state.mats.聚气草>0?'':'disabled')+' onclick="doGu()">喂 蛊</button></div></div>');}
+function guEffect(announce){const r=Math.random();
+ if(r<.3){state.exp+=18;if(announce)toast('勤奋蛊 · 修为+18');return '勤奋蛊：修为+18';}
+ if(r<.6){state.stress=Math.max(0,state.stress-25);if(announce)toast('开心蛊 · 心魔-25');return '开心蛊：心魔-25';}
+ if(r<.85){state.attrs.气运+=3;if(announce)toast('好运蛊 · 气运+3');return '好运蛊：气运+3';}
+ state.stress=Math.min(100,state.stress+6);if(announce)toast('恶作剧蛊，阿箩偷笑');return '恶作剧蛊：心魔+6（阿箩偷笑）';}
+function doGu(){state.mats.聚气草--;const txt=guEffect(false);state.bond.苗阿箩=Math.min(100,state.bond.苗阿箩+8);
+ document.getElementById('guHost').innerHTML='<div class="qresult"><div class="big brush">'+txt.split('：')[0]+'</div>'+
+ '<div style="margin-top:8px;font-family:\'Noto Sans SC\';font-size:13px;color:var(--green)">'+txt+' · 好感+8</div>'+
+ '<div class="know-foot" style="margin-top:14px"><button class="big-btn ghost" onclick="closeInteract()">收 下</button></div></div>';
+ renderGarden();renderExp();renderAttrs();}
+
+/* ===== 乌川：雨夜守护（每日） ===== */
+function openGuard(){const done=state.actDate.乌川===new Date().toDateString();
+ document.getElementById('iaBody').insertAdjacentHTML('beforeend','<div id="guardHost"><div style="font-family:\'Noto Sans SC\';font-size:13px;line-height:1.9">'+(done?'今夜已陪你坐过，明日再来。':'雨夜里他静静陪你坐着，听你说，也听你沉默。')+'</div>'+
+ '<div class="know-foot" style="margin-top:14px"><button class="big-btn" '+(done?'disabled':'')+' onclick="doGuard()">夜 谈</button></div></div>');}
+function doGuard(){state.actDate.乌川=new Date().toDateString();state.stress=Math.max(0,state.stress-25);state.tokens.守护++;state.attrs.气血+=4;state.bond.乌川=Math.min(100,state.bond.乌川+9);
+ document.getElementById('guardHost').innerHTML='<div class="qresult"><div class="big brush">雨 夜 守 护</div>'+
+ '<div style="margin-top:8px;font-family:\'Noto Sans SC\';font-size:13px;color:var(--green)">心魔-25 · 气血+4 · 守护+1 · 好感+9</div>'+
+ '<div class="know-foot" style="margin-top:14px"><button class="big-btn ghost" onclick="closeInteract()">收 下</button></div></div>';
+ renderAttrs();}
+
+/* ===== 卢也：每日卜卦 ===== */
+function openFortune(){const done=state.actDate.卢也===new Date().toDateString();
+ document.getElementById('iaBody').insertAdjacentHTML('beforeend','<div id="fortuneHost"><div style="font-family:\'Noto Sans SC\';font-size:13px;line-height:1.9">'+(done?'今日卦象已现，天机不可再泄。':'手摇拂尘，他闭目掐指，要为你卜今日机缘。')+'</div>'+
+ '<div class="know-foot" style="margin-top:14px"><button class="big-btn" '+(done?'disabled':'')+' onclick="doFortune()">卜 一 卦</button></div></div>');}
+function fortuneEffect(){const r=Math.random();
+ if(r<.3){state.doubleNext=true;state.attrs.气运+=1;return '大吉：下次任务修为翻倍，气运+1';}
+ if(r<.8){state.exp+=12;return '中吉：修为+12';}
+ state.stress=Math.max(0,state.stress-5);return '凶：塞翁失马，心魔-5';}
+function doFortune(){state.actDate.卢也=new Date().toDateString();const all=fortuneEffect(),pp=all.split('：');state.bond.卢也=Math.min(100,state.bond.卢也+6);
+ document.getElementById('fortuneHost').innerHTML='<div class="qresult"><div class="big brush">'+pp[0]+'</div>'+
+ '<div style="margin-top:8px;font-family:\'Noto Sans SC\';font-size:13px;color:var(--green)">'+pp[1]+' · 好感+6</div>'+
+ '<div class="know-foot" style="margin-top:14px"><button class="big-btn ghost" onclick="closeInteract()">收 下</button></div></div>';
+ renderExp();renderAttrs();}
 
 /* 图鉴 */
 (function(){document.getElementById('codexGrid').innerHTML=CHARS.map(c=>
