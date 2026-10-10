@@ -2,3 +2,10 @@ _shots/
 Thumbs.db
 .DS_Store
 *.log
+
+# 密钥与环境变量（绝不提交）
+.env
+.env.local
+.env.*.local
+.vercel
+node_modules/
