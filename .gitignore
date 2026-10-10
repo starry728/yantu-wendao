@@ -7,5 +7,6 @@ Thumbs.db
 .env
 .env.local
 .env.*.local
+.dev.vars
 .vercel
 node_modules/
