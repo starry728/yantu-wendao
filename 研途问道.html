@@ -217,6 +217,31 @@
   .token{border:1px solid var(--gold);padding:6px 10px;font-family:"Noto Sans SC";font-size:11px;background:rgba(201,160,80,.1);line-height:1.5;}
   .token small{color:var(--inksoft);}
 
+  /* ===== 拜访大图 · 伪2D ===== */
+  .visit-stage{position:absolute;inset:0;overflow:hidden;display:flex;align-items:center;justify-content:center;gap:3vw;padding:4vh 5vw;}
+  .visit-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:blur(26px) brightness(.5) saturate(1.15);transform:scale(1.25);animation:vKenburns 18s ease-in-out infinite alternate;}
+  @keyframes vKenburns{0%{transform:scale(1.25) translate(-1.5%,-1%);}100%{transform:scale(1.38) translate(1.5%,1.2%);}}
+  .visit-veil{position:absolute;inset:0;background:radial-gradient(ellipse at 35% 50%,rgba(10,12,20,.15),rgba(10,12,20,.72));}
+  #visitFx{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;}
+  .visit-figure{position:relative;z-index:2;height:82vh;max-height:760px;flex:0 0 auto;animation:vSway 7s ease-in-out infinite;transform-origin:50% 90%;}
+  @keyframes vSway{0%,100%{transform:translateY(0) rotate(-.7deg);}50%{transform:translateY(-1.4vh) rotate(.7deg);}}
+  .visit-figure img{height:100%;width:auto;border:1px solid rgba(201,160,80,.7);box-shadow:0 24px 70px rgba(0,0,0,.6);animation:vBreath 5.5s ease-in-out infinite;}
+  @keyframes vBreath{0%,100%{filter:brightness(1);}50%{filter:brightness(1.12);}}
+  .vhalo{position:absolute;left:50%;top:46%;width:120%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;
+    background:radial-gradient(circle,rgba(201,160,80,.28),rgba(201,160,80,0) 62%);animation:vHalo 4.5s ease-in-out infinite;pointer-events:none;}
+  @keyframes vHalo{0%,100%{opacity:.5;transform:translate(-50%,-50%) scale(.95);}50%{opacity:.95;transform:translate(-50%,-50%) scale(1.08);}}
+  .visit-panel{position:relative;z-index:3;max-width:430px;color:#f4ead8;}
+  .visit-panel .vn{font-size:46px;line-height:1.1;color:#f6e9cf;text-shadow:0 3px 18px rgba(0,0,0,.7);}
+  .visit-panel .vmeta{font-family:"Noto Sans SC";font-size:13px;color:var(--gold);margin-top:6px;letter-spacing:1px;}
+  .visit-panel .vtier{font-family:"Noto Sans SC";font-size:12px;color:#e8b9b4;margin-top:4px;}
+  .visit-panel .vline{font-family:"Noto Sans SC";font-size:15px;line-height:1.8;margin-top:16px;padding:11px 15px;border-left:3px solid var(--gold);background:rgba(255,250,240,.1);}
+  .visit-panel .vbio{font-family:"Noto Sans SC";font-size:12px;line-height:1.9;margin-top:14px;color:#d8ccb6;}
+  .visit-panel .vbtns{margin-top:20px;display:flex;gap:12px;}
+  .visit-close{position:absolute;top:18px;right:22px;z-index:5;width:40px;height:40px;border:1px solid rgba(244,234,216,.4);background:rgba(10,12,20,.4);color:#f4ead8;font-size:16px;cursor:pointer;}
+  @media(max-width:760px){.visit-stage{flex-direction:column;gap:14px;padding:7vh 6vw 4vh;overflow-y:auto;}
+   .visit-figure{height:44vh;order:1;margin-top:2vh;}.visit-panel{order:2;max-width:100%;text-align:left;}
+   .visit-panel .vn{font-size:34px;}.visit-panel .vbtns{justify-content:center;}}
+
   #toast{position:fixed;bottom:32px;left:50%;transform:translateX(-50%) translateY(20px);z-index:50;background:#2e2820;border:1px solid #e8c66a;color:#f0e6cf;padding:10px 22px;font-family:"Noto Sans SC";font-size:13px;opacity:0;transition:.3s;pointer-events:none;}
   #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
@@ -337,6 +362,26 @@
 <div class="modal" id="interactModal"><div class="modal-box">
   <div class="modal-head"><h2 class="brush" id="iaTitle">同 门 相 会</h2><button class="ghost-btn" onclick="closeInteract()">✕</button></div>
   <div id="iaBody"></div>
+</div></div>
+
+<!-- 拜访大图（伪2D） -->
+<div class="modal" id="visitModal"><div class="visit-stage">
+  <img class="visit-bg" id="visitBg" src="assets/hero-form1.jpg" alt="">
+  <div class="visit-veil"></div>
+  <canvas id="visitFx"></canvas>
+  <div class="visit-figure" id="visitFigure"><div class="vhalo"></div><img id="visitImg" src="assets/hero-form1.jpg" alt=""></div>
+  <div class="visit-panel">
+    <div class="vn brush" id="visitName"></div>
+    <div class="vmeta" id="visitMeta"></div>
+    <div class="vtier" id="visitTier"></div>
+    <div class="vline" id="visitLine"></div>
+    <div class="vbio" id="visitBio"></div>
+    <div class="vbtns">
+      <button class="big-btn" id="visitVoice" onclick="speakVisit()">听 其 声</button>
+      <button class="big-btn ghost" onclick="closeVisit()">辞 行</button>
+    </div>
+  </div>
+  <button class="visit-close" onclick="closeVisit()">✕</button>
 </div></div>
 
 <!-- 炼丹 -->
@@ -504,8 +549,66 @@ function renderBond(){document.getElementById('bondList').innerHTML=CHARS.filter
   '<div class="bond-actions">'+(c.voice?'<button class="mini-btn" onclick="speak(\''+c.voice+'\')">语音</button>':'')+
   '<button class="mini-btn" style="border-color:var(--red);color:var(--red)" onclick="openInteract(\''+c.n+'\')">互动</button>'+
   '<button class="mini-btn" onclick="visit(\''+c.n+'\')">拜访</button></div></div>';}).join('');}
+/* ===== 拜访大图（伪2D） ===== */
+const VTHEME={
+ '灵小九':{c:['#f6b6c2','#ef93ac','#fff2f5'],k:'petal'},
+ '霍燃':{c:['#ff8a5c','#e0503a','#ffd089'],k:'rise'},
+ '沈澜':{c:['#9fc7e8','#cfe6f5','#7fb2d8'],k:'fall'},
+ '裴霜':{c:['#e8eef5','#c7d2de','#ffffff'],k:'snow'},
+ '陆昭':{c:['#a9d08e','#e0c07a','#cfe3a0'],k:'rise'},
+ '萧玄姬':{c:['#c3a6e8','#e8d9a0','#b9a0e0'],k:'rise'},
+ '苗阿箩':{c:['#bfe39a','#e8f5c0','#9fd08a'],k:'fly'},
+ '乌川':{c:['#8fc7d8','#b6dce6','#6fa8bc'],k:'rain'},
+ '卢也':{c:['#d8c089','#efe0b8','#c9a86a'],k:'talis'},
+ '阿杳':{c:['#eef2f7','#d6dde8','#ffffff'],k:'mist'}};
+let VF=null,visitVoiceSrc=null;
 function visit(n){state.bond[n]=Math.min(100,state.bond[n]+9);state.stress=Math.max(0,state.stress-4);
- renderBond();renderAttrs();renderBondTray();toast(LINES[n]||(n+' 好感 +9'));}
+ const c=charByName(n);
+ document.getElementById('visitBg').src=c.img;
+ document.getElementById('visitImg').src=c.img;
+ document.getElementById('visitName').textContent=c.n;
+ document.getElementById('visitMeta').textContent=c.meta;
+ document.getElementById('visitTier').textContent=bondTier(state.bond[n])+' · 好感 '+state.bond[n]+'（本次 +9）';
+ document.getElementById('visitLine').textContent=LINES[n]||'';
+ document.getElementById('visitBio').textContent=c.bio||'';
+ visitVoiceSrc=c.voice||null;
+ document.getElementById('visitVoice').style.display=c.voice?'':'none';
+ document.getElementById('visitModal').classList.add('show');
+ startVisitFx(n);
+ renderBond();renderAttrs();renderBondTray();}
+function speakVisit(){if(visitVoiceSrc)speak(visitVoiceSrc);}
+function closeVisit(){stopVisitFx();document.getElementById('visitModal').classList.remove('show');}
+function sizeVisitFx(){const cv=document.getElementById('visitFx');cv.width=cv.clientWidth;cv.height=cv.clientHeight;}
+function onVresize(){if(!VF)return;sizeVisitFx();VF.W=VF.cv.width;VF.H=VF.cv.height;}
+function startVisitFx(n){
+ const cv=document.getElementById('visitFx');sizeVisitFx();
+ const ctx=cv.getContext('2d'),th=VTHEME[n]||VTHEME['阿杳'],W=cv.width,H=cv.height,
+  N=Math.min(72,Math.floor(W/15)),ps=[];
+ for(let i=0;i<N;i++)ps.push(mkVp(th,W,H));
+ VF={cv,ctx,th,W,H,ps,t:0};vfxLoop();window.addEventListener('resize',onVresize);}
+function mkVp(th,W,H){return{x:Math.random()*W,y:Math.random()*H,r:1.5+Math.random()*3,
+  vx:(Math.random()-.5)*.4,vy:.3+Math.random()*.9,ph:Math.random()*Math.PI*2,
+  c:th.c[Math.floor(Math.random()*th.c.length)],sp:.6+Math.random()*.8,
+  rot:Math.random()*Math.PI*2,vr:(Math.random()-.5)*.05};}
+function vfxLoop(){if(!VF)return;const{ctx,th,W,H,ps}=VF;ctx.clearRect(0,0,W,H);VF.t+=.016;
+ for(const p of ps){p.ph+=.03;p.rot+=p.vr;
+  if(th.k==='rise'){p.y-=p.vy*p.sp;p.x+=Math.sin(p.ph)*.4;if(p.y<-10){p.y=H+10;p.x=Math.random()*W;}}
+  else if(th.k==='fall'){p.y+=p.vy*p.sp*1.4;p.x+=Math.sin(p.ph)*.5;if(p.y>H+10){p.y=-10;p.x=Math.random()*W;}}
+  else if(th.k==='snow'){p.y+=p.vy*p.sp*.5;p.x+=Math.sin(p.ph)*.5;if(p.y>H+10){p.y=-10;p.x=Math.random()*W;}}
+  else if(th.k==='rain'){p.y+=p.vy*9;p.x+=.6;if(p.y>H){p.y=-10;p.x=Math.random()*W;}}
+  else if(th.k==='fly'){p.x+=Math.sin(p.ph)*.7;p.y+=Math.cos(p.ph*.8)*.4;}
+  else if(th.k==='talis'){p.y-=p.vy*.4;p.x+=Math.sin(p.ph)*.3;if(p.y<-14){p.y=H+14;p.x=Math.random()*W;}}
+  else if(th.k==='mist'){p.y-=p.vy*.35;p.x+=Math.sin(p.ph*.5)*.25;if(p.y<-12){p.y=H+12;p.x=Math.random()*W;}}
+  else{p.y+=p.vy*.5;p.x+=Math.sin(p.ph)*1.1;if(p.y>H+12){p.y=-12;p.x=Math.random()*W;}}
+  ctx.save();ctx.globalAlpha=.85;
+  if(th.k==='rain'){ctx.strokeStyle=p.c;ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(p.x-2,p.y-12);ctx.stroke();}
+  else if(th.k==='talis'){ctx.translate(p.x,p.y);ctx.rotate(p.rot);ctx.fillStyle=p.c;ctx.fillRect(-3,-5,6,10);}
+  else if(th.k==='petal'){ctx.translate(p.x,p.y);ctx.rotate(p.rot);ctx.fillStyle=p.c;ctx.beginPath();ctx.ellipse(0,0,p.r,p.r*1.6,0,0,Math.PI*2);ctx.fill();}
+  else{ctx.shadowBlur=8;ctx.shadowColor=p.c;ctx.fillStyle=p.c;ctx.beginPath();ctx.arc(p.x,p.y,p.r*.7,0,Math.PI*2);ctx.fill();}
+  ctx.restore();}
+ VF.raf=requestAnimationFrame(vfxLoop);}
+function stopVisitFx(){if(!VF)return;cancelAnimationFrame(VF.raf);window.removeEventListener('resize',onVresize);
+ VF.ctx.clearRect(0,0,VF.W,VF.H);VF=null;}
 function bondAction(n){visit(n);}
 
 /* 炼丹（需材料） */
