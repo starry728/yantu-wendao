@@ -261,6 +261,35 @@
   .ai-input button{flex:0 0 auto;}
   @media(max-width:760px){.ai-box{height:88vh;}.ai-msg .bubble{max-width:88%;}}
 
+  /* ===== 账号 / 排行榜 / 好友 / 留言 ===== */
+  .ac-off,.ac-msg{font-family:"Noto Sans SC";font-size:12px;color:var(--inksoft);line-height:1.8;padding:10px 2px;}
+  .ac-tabs{display:flex;gap:10px;margin-bottom:14px;}
+  .ac-form{display:flex;flex-direction:column;gap:11px;}
+  .ac-form input{padding:11px 13px;border:1px solid var(--inksoft);font-family:"Noto Sans SC";font-size:13px;background:rgba(255,255,255,.6);}
+  .ac-logged .nm{font-size:26px;color:var(--green);}
+  .ac-logged .mt{font-family:"Noto Sans SC";font-size:12px;color:var(--inksoft);margin:6px 0 14px;}
+  .ac-btns{display:flex;gap:10px;flex-wrap:wrap;}
+  #boardBody,#friendBody{max-height:62vh;overflow-y:auto;}
+  .br-row{display:grid;grid-template-columns:54px 1fr 110px 80px;align-items:center;gap:8px;padding:9px 8px;border-bottom:1px dashed var(--inksoft);font-family:"Noto Sans SC";font-size:13px;}
+  .br-row .rk{color:var(--red);font-weight:700;}
+  .br-row .rm{color:var(--inksoft);font-size:12px;}
+  .br-row .sc{text-align:right;color:var(--green);font-weight:700;}
+  .br-head{background:rgba(201,160,80,.14);font-weight:700;}
+  .fr-me{font-family:"Noto Sans SC";font-size:13px;margin-bottom:10px;}.fr-me b{color:var(--red);}
+  .fr-add{display:flex;gap:8px;margin-bottom:12px;}
+  .fr-add input{flex:1;padding:9px 11px;border:1px solid var(--inksoft);font-family:"Noto Sans SC";font-size:12px;background:rgba(255,255,255,.6);}
+  .fr-sec{font-family:"Ma Shan Zheng";font-size:17px;color:var(--green);border-left:3px solid var(--gold);padding-left:9px;margin:14px 0 8px;}
+  .fr-row{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;padding:9px 4px;border-bottom:1px dashed var(--inksoft);font-family:"Noto Sans SC";font-size:13px;}
+  .fr-row small{color:var(--inksoft);}
+  .fr-empty{font-family:"Noto Sans SC";font-size:12px;color:var(--inksoft);padding:10px 2px;}
+  .msg-box{display:flex;flex-direction:column;height:82vh;}
+  .msg-body{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding:6px;}
+  .m{align-self:flex-start;max-width:75%;padding:8px 12px;background:rgba(255,255,255,.6);border:1px solid var(--inksoft);border-radius:4px;font-family:"Noto Sans SC";font-size:13px;line-height:1.7;white-space:pre-wrap;word-break:break-word;}
+  .m.me{align-self:flex-end;background:var(--red);color:#fff;}
+  .msg-input{display:flex;gap:9px;padding-top:9px;border-top:1px solid var(--inksoft);}
+  .msg-input input{flex:1;padding:10px 12px;border:1px solid var(--inksoft);font-family:"Noto Sans SC";font-size:13px;background:rgba(255,255,255,.6);}
+  @media(max-width:600px){.br-row{grid-template-columns:40px 1fr 64px;}.br-row .rm{display:none;}}
+
   #toast{position:fixed;bottom:32px;left:50%;transform:translateX(-50%) translateY(20px);z-index:50;background:#2e2820;border:1px solid #e8c66a;color:#f0e6cf;padding:10px 22px;font-family:"Noto Sans SC";font-size:13px;opacity:0;transition:.3s;pointer-events:none;}
   #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
@@ -294,6 +323,9 @@
         <button class="ghost-btn" onclick="openModal('bondModal')">羁绊</button>
         <button class="ghost-btn" style="border-color:var(--red);color:var(--red)" onclick="openAITutor()">问道导师</button>
         <button class="ghost-btn" onclick="openModal('pillModal')">炼丹房</button>
+        <button class="ghost-btn" onclick="openAccount()">账册</button>
+        <button class="ghost-btn" onclick="openBoard()">道友榜</button>
+        <button class="ghost-btn" onclick="openFriends()">道友</button>
         <button class="ghost-btn" onclick="openCodex()">图鉴</button>
       </div>
     </div>
@@ -417,6 +449,31 @@
   </div>
 </div></div>
 
+<!-- 账号 / 云存档 -->
+<div class="modal" id="accountModal"><div class="modal-box">
+  <div class="modal-head"><h2 class="brush">道 途 账 册</h2><button class="ghost-btn" onclick="closeModal('accountModal')">✕</button></div>
+  <div id="accountBody"></div>
+</div></div>
+
+<!-- 排行榜 -->
+<div class="modal" id="boardModal"><div class="modal-box">
+  <div class="modal-head"><h2 class="brush">道 友 榜</h2><button class="ghost-btn" onclick="closeModal('boardModal')">✕</button></div>
+  <div id="boardBody"></div>
+</div></div>
+
+<!-- 好友 -->
+<div class="modal" id="friendModal"><div class="modal-box">
+  <div class="modal-head"><h2 class="brush">道 友 · 同 游</h2><button class="ghost-btn" onclick="closeModal('friendModal')">✕</button></div>
+  <div id="friendBody"></div>
+</div></div>
+
+<!-- 留言 -->
+<div class="modal" id="msgModal"><div class="modal-box msg-box">
+  <div class="modal-head"><h2 class="brush">飞 剑 传 书</h2><button class="ghost-btn" onclick="closeMsg()">✕</button></div>
+  <div class="msg-body" id="msgBody"></div>
+  <div class="msg-input"><input id="msgText" placeholder="写留言，回车发送…" onkeydown="if(event.key==='Enter')sendMsg()"><button class="big-btn" onclick="sendMsg()">送 出</button></div>
+</div></div>
+
 <!-- 炼丹 -->
 <div class="modal" id="pillModal"><div class="modal-box">
   <div class="modal-head"><h2 class="brush">炼 丹 房</h2><button class="ghost-btn" onclick="closeModal('pillModal')">✕</button></div>
@@ -442,6 +499,8 @@
 </div></div>
 
 <div id="toast"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"
+ onerror="var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/supabase-js/2.45.4/umd/supabase.min.js';document.head.appendChild(s);"></script>
 <script>
 /* ===== 数据 ===== */
 const FORMS=[
@@ -504,6 +563,164 @@ let state={form:0,exp:0,expMax:100,stress:30,
  bond:{},knowDone:new Set(),wateredDate:'',
  tokens:{剑气:0,雷令:0,守护:0},doubleNext:false,skillDate:{},actDate:{},luzhaoAsk:null};
 CHARS.forEach(c=>state.bond[c.n]=c.n==='灵小九'?100:8);
+
+/* ===== 存档：本地 localStorage（离线可用）+ 云端 Supabase ===== */
+const SAVE_KEY='yantu_save_v1';
+const CLOUD={url:'',anon:''};   // 部署后在这填 Supabase Project URL / anon key
+let sb=null,cloudUser=null,saveT=null;
+function serializeState(){return JSON.stringify({form:state.form,exp:state.exp,expMax:state.expMax,stress:state.stress,
+ attrs:state.attrs,weapon:state.weapon,pills:state.pills,mats:state.mats,bond:state.bond,
+ knowDone:[...state.knowDone],wateredDate:state.wateredDate,tokens:state.tokens,doubleNext:state.doubleNext,
+ skillDate:state.skillDate,actDate:state.actDate,luzhaoAsk:state.luzhaoAsk});}
+function applySave(o){if(!o||typeof o!=='object')return false;try{
+ state.form=o.form||0;state.exp=o.exp||0;state.expMax=o.expMax||100;state.stress=o.stress||0;
+ if(o.attrs)state.attrs=Object.assign(state.attrs,o.attrs);
+ if(o.weapon)state.weapon=Object.assign(state.weapon,o.weapon);
+ if(o.pills)state.pills=Object.assign(state.pills,o.pills);
+ if(o.mats)state.mats=Object.assign(state.mats,o.mats);
+ if(o.bond)state.bond=Object.assign(state.bond,o.bond);
+ state.knowDone=new Set(Array.isArray(o.knowDone)?o.know:[]);
+ state.wateredDate=o.wateredDate||'';
+ if(o.tokens)state.tokens=Object.assign(state.tokens,o.tokens);
+ state.doubleNext=!!o.doubleNext;state.skillDate=o.skillDate||{};state.actDate=o.actDate||{};state.luzhaoAsk=o.luzhaoAsk||null;
+ return true;}catch(e){return false;}}
+function saveLocal(){try{localStorage.setItem(SAVE_KEY,serializeState());}catch(e){}}
+function loadLocal(){try{return applySave(JSON.parse(localStorage.getItem(SAVE_KEY)));}catch(e){return false;}}
+function scheduleSave(){clearTimeout(saveT);saveT=setTimeout(saveLocal,350);}
+loadLocal();
+setInterval(saveLocal,3000);window.addEventListener('beforeunload',saveLocal);
+function refreshAll(){renderAttrs();renderExp();renderForm();renderWeapon();
+ if(typeof renderGarden==='function')renderGarden();
+ if(typeof renderBondTray==='function')renderBondTray();
+ if(typeof renderBond==='function')renderBond();}
+
+/* Supabase 云端 */
+function cloudReady(){return !!(CLOUD.url&&CLOUD.anon&&typeof window.supabase!=='undefined');}
+function initCloud(){if(!cloudReady())return false;
+ sb=window.supabase.createClient(CLOUD.url,CLOUD.anon,{auth:{persistSession:true,autoRefreshToken:true}});
+ sb.auth.getSession().then(({data})=>{cloudUser=data.session&&data.session.user||null;renderAccountUI();});
+ sb.auth.onAuthStateChange((_e,se)=>{cloudUser=se&&se.user||null;renderAccountUI();});
+ setInterval(()=>{if(cloudUser)pushCloud();},20000);
+ return true;}
+function scoreNow(){return state.exp+(state.form)*state.expMax;}
+async function pushCloud(){if(!sb||!cloudUser)return '需先登录';
+ const f=FORMS[state.form],me=await currentProfile();
+ const row={id:cloudUser.id,name:(me&&me.name)||'道友',realm:f.realm,form:state.form,score:scoreNow(),
+  attrs:state.attrs,data:JSON.parse(serializeState()),updated_at:new Date().toISOString()};
+ const{error}=await sb.from('profiles').upsert(row);
+ if(error)return error.message;saveLocal();return '已上传云端';}
+async function currentProfile(){if(!sb||!cloudUser)return null;
+ const{data}=await sb.from('profiles').select('*').eq('id',cloudUser.id).maybeSingle();return data;}
+async function downloadCloud(){if(!sb||!cloudUser)return '需先登录';
+ const{data,error}=await sb.from('profiles').select('data').eq('id',cloudUser.id).maybeSingle();
+ if(error)return error.message;if(!data||!data.data)return '云端暂无存档';
+ applySave(data.data);refreshAll();saveLocal();return '已读取云端存档';}
+async function setHandle(h){if(!sb||!cloudUser)return;h=String(h).trim();if(!h)return;
+ const{error}=await sb.from('profiles').update({handle:h}).eq('id',cloudUser.id);
+ if(error)toast('道号可能已被占用');else toast('道号已设为 '+h);renderAccountUI();}
+
+/* ===== 排行榜（公开可读，未登录也能看） ===== */
+function boardHeader(){return '<div class="br-row br-head"><span class="rk">名次</span><span class="hn">道号 / 名号</span><span class="rm">境界</span><span class="sc">道途值</span></div>';}
+function boardRows(rows){return rows.map((r,i)=>'<div class="br-row"><span class="rk">'+(i+1)+'</span>'+
+ '<span class="hn">'+(r.handle?'['+r.handle+'] ':'')+(r.name||'道友')+'</span>'+
+ '<span class="rm">'+(r.realm||'')+'</span><span class="sc">'+(r.score||0)+'</span></div>').join('');}
+async function openBoard(){document.getElementById('boardModal').classList.add('show');
+ const host=document.getElementById('boardBody');host.innerHTML='<div style="padding:20px;font-family:\'Noto Sans SC\';font-size:12px;color:var(--inksoft)">正在汇聚天下道友…</div>';
+ if(!sb){renderBoardLocal();return;}
+ const{data,error}=await sb.from('leaderboard').select('*').limit(50);
+ if(error){renderBoardLocal();return;}
+ host.innerHTML=boardHeader()+boardRows(data&&data.length?data:[{name:'暂无道友',realm:'',score:0}]);}
+function renderBoardLocal(){document.getElementById('boardBody').innerHTML=boardHeader()+
+ boardRows([{handle:'本地',name:'你',realm:FORMS[state.form].realm,score:scoreNow()}])+
+ '<div style="padding:14px;font-family:\'Noto Sans SC\';font-size:11px;color:var(--inksoft)">线上版本（部署并登录）后，这里显示全服道友排名。</div>';}
+
+/* ===== 好友 / 道号 / 互助 / 留言（需登录） ===== */
+let msgTo=null;
+async function openFriends(){document.getElementById('friendModal').classList.add('show');
+ if(!sb||!cloudUser){document.getElementById('friendBody').innerHTML=
+  '<div style="padding:16px;font-family:\'Noto Sans SC\';font-size:12px;line-height:1.9;color:var(--inksoft)">好友为线上功能：部署并登录后，可凭“道号”发拜帖、互访灵田浇水、组队修炼、留言。</div>';return;}
+ renderFriends();}
+async function renderFriends(){
+ const uid=cloudUser.id;
+ const [fs,rq,me]=await Promise.all([
+  sb.from('friends').select('*,profiles!friends_addressee_fkey(handle,name,realm)').eq('requester',uid).eq('status','accepted'),
+  sb.from('friends').select('*,profiles!friends_requester_fkey(handle,name,realm)').eq('addressee',uid).eq('status','pending'),
+  currentProfile()]);
+ let h='<div class="fr-me">我的道号：<b>'+(me&&me.handle||'未设置')+'</b> <button class="mini-btn" onclick="promptHandle()">改道号</button></div>';
+ h+='<div class="fr-add"><input id="frHandle" placeholder="输入道友道号发拜帖…"><button class="mini-btn" onclick="addFriendByHandle()">拜 帖</button></div>';
+ if(rq&&rq.length){h+='<div class="fr-sec">收到拜帖</div>'+rq.map(r=>{const p=r.profiles;
+  return '<div class="fr-row"><span>'+(p.handle?'['+p.handle+'] ':'')+(p.name||'道友')+'</span>'+
+  '<button class="mini-btn" onclick="acceptFriend(\''+r.requester+'\',1)">结为道友</button>'+
+  '<button class="mini-btn" onclick="acceptFriend(\''+r.requester+'\',0)">婉拒</button></div>';}).join('');}
+ h+='<div class="fr-sec">我的道友</div>';
+ if(fs&&fs.length)h+=fs.map(r=>{const p=r.profiles;
+  return '<div class="fr-row"><span>'+(p.handle?'['+p.handle+'] ':'')+(p.name||'道友')+' <small>'+(p.realm||'')+'</small></span>'+
+  '<button class="mini-btn" onclick="helpFriend(\''+r.addressee+'\',\'water\')">帮浇水</button>'+
+  '<button class="mini-btn" onclick="helpFriend(\''+r.addressee+'\',\'team\')">组队</button>'+
+  '<button class="mini-btn" onclick="openMsg(\''+r.addressee+'\')">留言</button></div>';}).join('');
+ else h+='<div class="fr-empty">尚无道友，凭道号发张拜帖吧。</div>';
+ document.getElementById('friendBody').innerHTML=h;}
+function promptHandle(){const h=prompt('设置你的唯一道号（道友据此加你）：');if(h)setHandle(h);}
+async function addFriendByHandle(){const el=document.getElementById('frHandle'),h=el.value.trim();if(!h)return;
+ const{data}=await sb.from('profiles').select('id').eq('handle',h).maybeSingle();
+ if(!data){toast('无此道号');return;}if(data.id===cloudUser.id){toast('不能加自己');return;}
+ const{error}=await sb.from('friends').insert({requester:cloudUser.id,addressee:data.id,status:'pending'});
+ toast(error?'拜帖可能已送过':'拜帖已送出');el.value='';renderFriends();}
+async function acceptFriend(uid,ok){
+ if(ok){await sb.from('friends').update({status:'accepted'}).eq('requester',uid).eq('addressee',cloudUser.id);
+  await sb.from('friends').upsert({requester:cloudUser.id,addressee:uid,status:'accepted'},{onConflict:'requester,addressee'});}
+ else await sb.from('friends').delete().eq('requester',uid).eq('addressee',cloudUser.id);
+ renderFriends();}
+async function helpFriend(uid,kind){
+ const today=new Date().toDateString(),key='help_'+kind+'_'+uid;
+ if(localStorage.getItem(key)===today){toast('今日已与此道友互助');return;}
+ const{error}=await sb.from('helps').insert({from_id:cloudUser.id,to_id:uid,kind});
+ if(error){toast('互助失败');return;}localStorage.setItem(key,today);
+ if(kind==='water'){state.mats.聚气草=(state.mats.聚气草||0)+1;toast('帮道友浇水 · 你也得1聚气草');renderGarden();}
+ else{state.exp+=15;toast('组队修炼 · 你修为+15');renderExp();}
+ saveLocal();renderFriends();}
+async function openMsg(uid){msgTo=uid;document.getElementById('msgModal').classList.add('show');
+ const{data}=await sb.from('messages').select('*')
+  .or('and(from_id.eq.'+cloudUser.id+',to_id.eq.'+uid+'),and(from_id.eq.'+uid+',to_id.eq.'+cloudUser.id+')').order('created_at');
+ document.getElementById('msgBody').innerHTML=(data&&data.length?data.map(m=>
+  '<div class="m '+(m.from_id===cloudUser.id?'me':'')+'">'+escHTML(m.body)+'</div>').join(''):'<div class="fr-empty">还没有留言，发第一条吧。</div>');}
+function sendMsg(){const inp=document.getElementById('msgText'),t=inp.value.trim();if(!t)return;
+ sb.from('messages').insert({from_id:cloudUser.id,to_id:msgTo,body:t});inp.value='';openMsg(msgTo);}
+function closeMsg(){document.getElementById('msgModal').classList.remove('show');}
+
+/* ===== 账号界面 ===== */
+function renderAccountUI(){const body=document.getElementById('accountBody');if(!body)return;
+ if(!cloudReady()){body.innerHTML='<div class="ac-off">云端功能未启用：部署后在代码 CLOUD 中填入 Supabase URL / anon key 即可；当前进度已由本机自动保存。</div>';return;}
+ if(!cloudUser){
+  body.innerHTML='<div class="ac-tabs"><button class="big-btn" id="tabIn">登 录</button><button class="big-btn ghost" id="tabUp">注 册</button></div>'+
+  '<div class="ac-form"><input id="acEmail" type="email" placeholder="邮箱"><input id="acPwd" type="password" placeholder="密码（至少 6 位）">'+
+  '<button class="big-btn" id="acGo">登 录</button><div class="ac-msg" id="acMsg"></div></div>';
+  acTab(1);return;}
+ (async()=>{const me=await currentProfile();
+  body.innerHTML='<div class="ac-logged"><div class="nm brush">'+(me&&me.name||'道友')+'</div>'+
+  '<div class="mt">道号：'+(me&&me.handle||'未设置')+' · 境界：'+FORMS[state.form].realm+'</div>'+
+  '<div class="ac-btns"><button class="big-btn" onclick="acPush()">上传当前进度</button>'+
+  '<button class="big-btn ghost" onclick="acPull()">读取云端</button>'+
+  '<button class="big-btn ghost" onclick="acLogout()">退出登录</button></div>'+
+  '<div class="ac-msg" id="acMsg"></div></div>';})();}
+let acMode=1;
+function acTab(isLogin){acMode=isLogin?1:0;
+ document.getElementById('tabIn').className=isLogin?'big-btn':'big-btn ghost';
+ document.getElementById('tabUp').className=isLogin?'big-btn ghost':'big-btn';
+ document.getElementById('acGo').textContent=isLogin?'登 录':'注 册';
+ document.getElementById('acGo').onclick=function(){acSubmit(acMode);};}
+async function acSubmit(isLogin){const email=document.getElementById('acEmail').value.trim(),
+ pwd=document.getElementById('acPwd').value,msg=document.getElementById('acMsg');
+ if(!email||pwd.length<6){msg.textContent='请填写邮箱，密码至少 6 位';return;}
+ let r;if(isLogin)r=await sb.auth.signInWithPassword({email,pwd});
+ else r=await sb.auth.signUp({email,pwd,options:{data:{name:email.split('@')[0]}}});
+ if(r.error){msg.textContent=r.error.message;return;}
+ if(!isLogin&&!(r.data&&r.data.session)){msg.textContent='注册成功，若邮箱需验证请查收后再登录';return;}
+ closeModal('accountModal');toast('已连通云端');}
+async function acPush(){document.getElementById('acMsg').textContent=await pushCloud();}
+async function acPull(){document.getElementById('acMsg').textContent=await downloadCloud();}
+async function acLogout(){await sb.auth.signOut();cloudUser=null;renderAccountUI();toast('已退出，使用本机存档');}
+function openAccount(){renderAccountUI();document.getElementById('accountModal').classList.add('show');}
 
 /* ===== 开场 → 视频 → 菜单 ===== */
 const opening=document.getElementById('opening'),menu=document.getElementById('menu'),
@@ -967,6 +1184,7 @@ function loop(){cx.clearRect(0,0,W,H);parts.forEach(p=>{p.y-=p.s;if(p.y<-4){p.y=
  cx.shadowBlur=8;cx.shadowColor=p.gold?'#c9a050':'#b0413e';cx.fill();});requestAnimationFrame(loop);}
 loop();
 renderAttrs();renderExp();renderForm();renderWeapon();renderGarden();
+initCloud();
 </script>
 </body>
 </html>
